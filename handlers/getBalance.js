@@ -15,27 +15,35 @@ module.exports = {
         const token = Alexa.getAccountLinkingAccessToken(handlerInput.requestEnvelope)
         console.log("token retrieved from request " + token);
 
+        if(token == undefined) {
+            return handlerInput.responseBuilder
+                .speak("Sorry, I am not authorized to serve this request")
+                .getResponse();
+        }
+
         //validate token
         return validateToken(token, scope)
-        .then((isTokenValid) => {
+        .then((data) => {
+            isTokenValid = data.active;
             console.log("token status is " + isTokenValid);
+            speechText = "Sorry, I am not authorized to serve this request"
 
             if (isTokenValid) {
-                //check if token is active
+                console.log("getting balance for user " + data.sub);
                 speechText = 'Your balance is S$2175.32';
-                return handlerInput.responseBuilder
+            } else  {
+                console.log("token is invalid");
+            }
+            
+            //respond
+            return handlerInput.responseBuilder
                 .speak(speechText)
                 .getResponse();
-            } else  {
-                console.log("error occured while introspecting token " + err);
-                return handlerInput.responseBuilder
-                .speak("Sorry, error occurred while processing your request, please try again later")
-                .getResponse();
-            }
+
         })
         .catch((err) => {
             console.log("error occured while introspecting token " + err);
-                return handlerInput.responseBuilder
+            return handlerInput.responseBuilder
                 .speak("Sorry, error occurred while processing your request, please try again later")
                 .getResponse();
         });
@@ -56,6 +64,6 @@ function validateToken(token, scope) {
     }
 
     return axios.post(tokenEndpoint, params, headers)
-        .then((result) => result.data.active)
+        .then((result) => result.data)
         .catch((err) => false);
 };
