@@ -4,6 +4,7 @@ const morgan = require('morgan');
 
 const { ExpressAdapter } = require('ask-sdk-express-adapter');
 const GetBalanceHandler = require('./handlers/getBalance.js');
+const SessionResumedHandler = require('./handlers/sessionResumed.js')
 const ErrorHandler = require('./handlers/error.js');
 
 const skill_id = "amzn1.ask.skill.432b47cb-0fc5-43e5-99c8-6a17257c437c";
@@ -27,7 +28,7 @@ const LogResponseInterceptor = {
 const app = express();
 const skillBuilder = Alexa.SkillBuilders.custom();
 const skill = skillBuilder.withSkillId(skill_id)
-    .addRequestHandlers(GetBalanceHandler)
+    .addRequestHandlers(GetBalanceHandler, SessionResumedHandler)
     .addErrorHandlers(ErrorHandler)
     .addRequestInterceptors(LogRequestInterceptor)
     .addResponseInterceptors(LogResponseInterceptor)
